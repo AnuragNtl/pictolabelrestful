@@ -42,5 +42,9 @@ public void generateTempSpaceForId(String id)
 File tmpSpace=new File(properties.getLocation());
 new File(tmpSpace+"/"+id+"/outputs").mkdirs();
 }
+public String getUploadPath(String id)
+{
+    return properties.getLocation()+"/"+id;
+}
 };
 

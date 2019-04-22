@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
+import com.anuragntl.pictolabels.components.FileManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @ControllerAdvice
 @RestController
-public class IDExtracctor {
+public class IDExtractor {
+    @Autowired
+    FileManager fileManager;
 	@ExceptionHandler(Throwable.class)
 	public ResponseEntity<Map<String,Object>> handleAll(Throwable t,WebRequest request)
 	{
@@ -28,13 +32,6 @@ public class IDExtracctor {
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		
 	}
-	@ModelAttribute("id")
-public String getId(@RequestParam(value="id",required=true) String id)
-{
-	if(id==null)
-		throw new RuntimeException("id is not declared");
-	return id;
-}
 };
 
 

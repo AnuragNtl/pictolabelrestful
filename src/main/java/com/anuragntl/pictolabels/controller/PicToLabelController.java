@@ -45,15 +45,17 @@ public Map<String,String> genTmpSpace()
 public List<PicStatus> addPic(@RequestParam("files") MultipartFile files[],@ModelAttribute("id")
 String id)
 {
+    System.out.println(files.length);
 	return Arrays.asList(files).stream().map((t)->
 	{
-		return addPic((MultipartFile)t,id);
+		return addPic(t,id);
 	}).collect(Collectors.toList());
 }
 @PostMapping("/addPic")
-public PicStatus addPic(@RequestParam("file") MultipartFile file,@ModelAttribute("uploadPath")
-String uploadPath)
+public PicStatus addPic(@RequestParam("file") MultipartFile file,@ModelAttribute("id")
+String id)
 {
+    String uploadPath=fileManager.getUploadPath(id);
 	Path target=Paths.get(uploadPath).toAbsolutePath().normalize().resolve(file.getName());
 	try
 	{
@@ -66,11 +68,11 @@ String uploadPath)
 	return new PicStatus(file.getName(),"/getPic/"+file.getName(),true);
 }
 @GetMapping("/getPic/{fileName}")
-public ResponseEntity<Resource> getPic(HttpServletRequest req,@PathVariable("fileName") String fileName,@ModelAttribute("id") String id)
+public ResponseEntity<Resource> getPic(HttpServletRequest req,@PathVariable("fileName") String fileName,@RequestParam("id") String id)
 {
     try
     {
-    Resource resource=fileManager.loadFile("uploads/"+id+"/"+fileName);
+    Resource resource=fileManager.loadFile(fileManager.getUploadPath(id)+"/"+fileName);
     return ResponseEntity.ok().contentType(MediaType.parseMediaType(req.getServletContext()
     .getMimeType(resource.getFile().getAbsolutePath())
     )).
