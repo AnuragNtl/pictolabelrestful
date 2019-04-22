@@ -1,6 +1,6 @@
 package com.anuragntl.pictolabels.controller;
 
-import org.assertj.core.util.Arrays;
+import java.util.Arrays;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -57,7 +57,13 @@ String uploadPath)
 	{
 		throw new RuntimeException(ioexcepn);
 	}
-	return new PicStatus();
+	return new PicStatus(file.getName(),"/getPic/"+file.getName(),true);
 }
-
+@GetMapping("/getPic/{fileName}")
+public ResponseEntity<Resource> getPic(@PathVariable("fileName") String fileName)
+{
+    File file=new File("uploads/"+fileName);
+    if(!file.exists())
+    throw new RuntimeException()
+}
 }
