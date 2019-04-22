@@ -1,9 +1,9 @@
 package com.anuragntl.pictolabels.entity;
 
 public class PicStatus {
-private boolean uploaded;
+private boolean status;
 private String url;
-private String link;
+private String fileName;
 public PicStatus(){}
 public PicStatus(String fileName,String url,boolean status)
 {

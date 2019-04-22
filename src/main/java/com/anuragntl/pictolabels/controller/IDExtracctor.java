@@ -29,21 +29,12 @@ public class IDExtracctor {
 		
 	}
 	@ModelAttribute("id")
-public String getId(@RequestParam("id") String id)
+public String getId(@RequestParam(value="id",required=true) String id)
 {
 	if(id==null)
 		throw new RuntimeException("id is not declared");
 	return id;
 }
-	@ModelAttribute("uploadPath")
-	public String getUploadPath(@ModelAttribute("id") String id)
-	{
-		return "uploads/"+id;
-	}
-	@ModelAttribute("outputPath")
-	public String getOutputPath(@ModelAttribute("uploadPath") String uploadPath)
-	{
-		return uploadPath+"/outputs";
-	}
 };
+
 

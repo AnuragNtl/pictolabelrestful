@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.http.HttpHeaders;
 import com.anuragntl.pictolabels.entity.PicStatus;
 import java.nio.file.Files;
-
+import org.springframework.core.io.Resource;
 import java.io.File;
 import java.io.IOException;
+import org.springframework.http.MediaType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -22,15 +23,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.anuragntl.pictolabels.components.FileManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
-public class PIcToLabelController {
+public class PicToLabelController {
+    @Autowired
+    private FileManager fileManager;
 @GetMapping("/getTmpSpace")
 public Map<String,String> genTmpSpace()
 {
 	String id=UUID.randomUUID().toString();
-	File tmpSpace=new File("uploads/"+id+"/outputs");
-	tmpSpace.mkdirs();
+	fileManager.generateTempSpaceForId(id);
 	return new HashMap<String,String>(){{
 		put("id",id);
 	}};
@@ -60,10 +66,21 @@ String uploadPath)
 	return new PicStatus(file.getName(),"/getPic/"+file.getName(),true);
 }
 @GetMapping("/getPic/{fileName}")
-public ResponseEntity<Resource> getPic(@PathVariable("fileName") String fileName)
+public ResponseEntity<Resource> getPic(HttpServletRequest req,@PathVariable("fileName") String fileName,@ModelAttribute("id") String id)
 {
-    File file=new File("uploads/"+fileName);
-    if(!file.exists())
-    throw new RuntimeException()
+    try
+    {
+    Resource resource=fileManager.loadFile("uploads/"+id+"/"+fileName);
+    return ResponseEntity.ok().contentType(MediaType.parseMediaType(req.getServletContext()
+    .getMimeType(resource.getFile().getAbsolutePath())
+    )).
+    header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+resource.getFilename()+"\"").
+    body(resource);
+}
+catch(Throwable t)
+{
+    throw new RuntimeException(t);
+}
+
 }
 }
