@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import com.anuragntl.pictolabels.config.UploadProperties;
 @SpringBootApplication
-@EnableConfigurationProperties()
+@EnableConfigurationProperties(UploadProperties.class)
 public class PictolabelsApplication {
 
 	public static void main(String[] args) {
