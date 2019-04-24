@@ -31,7 +31,7 @@ Resource resource=new UrlResource(storagePath.resolve(fileName).normalize().toUr
 if(resource.exists())
 return resource;
 else
-throw new IOException("Cannot load file");
+throw new IOException("Cannot load file "+resource.toString());
 }
 public void saveFile(InputStream in,String fileName)throws IOException
 {
