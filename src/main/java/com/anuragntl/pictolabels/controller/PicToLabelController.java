@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.anuragntl.pictolabels.components.FileManager;
+import com.anuragntl.pictolabels.components.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 public class PicToLabelController {
     @Autowired
     private FileManager fileManager;
+    @Autowired
+    PicToLabelService picToLabelService;
 @GetMapping("/getTmpSpace")
 public Map<String,String> genTmpSpace()
 {
@@ -43,17 +45,22 @@ public Map<String,String> genTmpSpace()
 }
 @PostMapping("/addPics")
 public List<PicStatus> addPic(@RequestParam("files") MultipartFile files[],@RequestParam("id")
-String id)
+String id,@RequestParam(value="threshold",required=false,defaultValue=4.5F) double threshold)
 {
-    System.out.println(files.length);
-	return Arrays.asList(files).stream().map((t)->
+    File uploadedFiles[]=Array.asList(files).stream().map((t)->
+    {
+        return new File(fileManager.getUploadPath(id)+"/"+t.getOriginalFilename());
+    }).collect(Collectors.toList()).toArray(new File[0]);
+    
+    List<PicStatus> response=Arrays.asList(files).stream().map((t)->
 	{
 		return addPic(t,id);
 	}).collect(Collectors.toList());
+	picToLabelService.generateOutput(id,uploadedFiles,new File(fileManager.getUploadPath(id)+"/outputs"),threshold);
+	return response;
 }
-@PostMapping("/addPic")
-public PicStatus addPic(@RequestParam("file") MultipartFile file,@RequestParam("id")
-String id)
+
+private PicStatus addPic(MultipartFile file,String id)
 {
     String uploadPath=fileManager.getUploadPath(id);
 	Path target=Paths.get(uploadPath).toAbsolutePath().normalize().resolve(file.getOriginalFilename());
