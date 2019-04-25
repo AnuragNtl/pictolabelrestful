@@ -101,12 +101,12 @@ private int inputWidth,inputHeight,inputChannels,gridWidth,gridHeight;
 		}
 		return model;
 	}
-	public ComputationGraph getFreshModel()
+	public ComputationGraph getFreshModel()throws IOException
 	{
 	    
 	    ComputationGraph model=null;
 	    if(modelPath==null)
-	    (ComputationGraph)TinyYOLO.builder().build().initPretrained();
+	    model=(ComputationGraph)TinyYOLO.builder().build().initPretrained();
 	    else
 	    model=ModelSerializer.restoreComputationGraph(modelPath);
 	    if(!(model.getOutputLayer(0) instanceof Yolo2OutputLayer))

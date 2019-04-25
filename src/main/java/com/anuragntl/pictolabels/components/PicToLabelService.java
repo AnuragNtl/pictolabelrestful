@@ -1,11 +1,20 @@
-import org.springframework.context.annotataion.Scope;
+package com.anuragntl.pictolabels.components;
+
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import java.util.Hashtable;
 import com.anuragntl.pictolabellib.*;
-import javax.
+import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.io.File;
+import java.awt.Rectangle;
+import java.util.Map;
+import java.util.Iterator;
+import java.awt.image.BufferedImage;
+
 @Service
-@Scope(ConfigurableBeanFactory.SINGLETON)
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class PicToLabelService
 {
     private Hashtable<String,PicToLabel> models=new Hashtable<>();
@@ -40,19 +49,21 @@ public class PicToLabelService
             outputs=outputFiles.get(id);
             for(File image : inputImages)
             {
+                BufferedImage bufferedImage=ImageIO.read(image);
                 Map<String,Rectangle> boxes=picToLabel.getCroppableAreas(picToLabel.getDetectedObjects(image,threshold));
-                for(Iterator<String> objectSet=boxes.keySet();objectSet.hasNext();)
+                for(Iterator<String> objectSet=boxes.keySet().iterator();objectSet.hasNext();)
                 {
                     String object=objectSet.next();
-                    Rectange box=boxes.get(object);
-                    File outputFile=File(outputDir+"/"+object+".jpg");
-                    ImageIO.write(ImageCropper.crop(image,rect.x,rect.y,rect.width,rect.height),outputFile);
-                    outputs.put(outputFile);
+                    Rectangle rect=boxes.get(object);
+                    File outputFile=new File(outputDir+"/"+object+".jpg");
+                    ImageIO.write(ImageCropper.crop(bufferedImage
+                    ,rect.x,rect.y,rect.width,rect.height),"JPG",outputFile);
+                    outputs.add(outputFile);
                 }
             }
 
         }
-        catch(Exception excepn)
+        catch(Exception exceptn)
         {
             throw new RuntimeException(exceptn.toString());
         }
