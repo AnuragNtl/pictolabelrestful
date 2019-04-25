@@ -73,10 +73,21 @@ private int inputWidth,inputHeight,inputChannels,gridWidth,gridHeight;
 	private static ComputationGraph model;
 	public ComputationGraph getModel() throws IOException
 	{
+	    if(provideSingleton)
+	    {
 		if(model==null)
 			return getAndChangeModel();
 		else
 			return model;
+		}
+		else
+		return getFreshModel();
+
+	}
+	private boolean provideSingleton=false;
+	public void setProvideSingleton(boolean provideSingleton)
+	{
+	    this.provideSingleton=provideSingleton;
 	}
 	private ComputationGraph getAndChangeModel()throws IOException
 	{
@@ -89,6 +100,18 @@ private int inputWidth,inputHeight,inputChannels,gridWidth,gridHeight;
 				throw new IOException("Not a YOLO Model");
 		}
 		return model;
+	}
+	public ComputationGraph getFreshModel()
+	{
+	    
+	    ComputationGraph model=null;
+	    if(modelPath==null)
+	    (ComputationGraph)TinyYOLO.builder().build().initPretrained();
+	    else
+	    model=ModelSerializer.restoreComputationGraph(modelPath);
+	    if(!(model.getOutputLayer(0) instanceof Yolo2OutputLayer))
+	    throw new IOException("Not a YOLO Model");
+	    return model;
 	}
 	public void init()throws IOException
 	{

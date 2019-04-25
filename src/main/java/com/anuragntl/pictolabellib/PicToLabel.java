@@ -19,10 +19,9 @@ import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2RGB;
 public class PicToLabel {
 private ModelProperties modelProperties;
 private File image;
-	public PicToLabel(ModelProperties modelProperties,File image)
+	public PicToLabel(ModelProperties modelProperties)
 {
 	this.modelProperties=modelProperties;
-	this.image=image;
 }
 	private INDArray processImage()throws IOException
 	{
@@ -39,8 +38,9 @@ private File image;
 		INDArray output=modelProperties.getModel().outputSingle(input);
 		return output;
 	}
-	public List<DetectedObject> getDetectedObjects(double threshold)throws IOException
+	public synchronized List<DetectedObject> getDetectedObjects(File image,double threshold)throws IOException
 	{
+	    this.image=image;
 		INDArray input=processImage();
 		INDArray output=getOutput(input);
 		Yolo2OutputLayer outputLayer=(Yolo2OutputLayer)modelProperties.getModel().getOutputLayer(0);
