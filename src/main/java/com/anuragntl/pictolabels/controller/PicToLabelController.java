@@ -45,7 +45,7 @@ public Map<String,String> genTmpSpace()
 }
 @PostMapping("/addPics")
 public List<PicStatus> addPic(@RequestParam("files") MultipartFile files[],@RequestParam("id")
-String id,@RequestParam(value="threshold",required=false,defaultValue="4.5") double threshold)
+String id,@RequestParam(value="threshold",required=false,defaultValue="0.45") double threshold)
 {
     File uploadedFiles[]=Arrays.asList(files).stream().map((t)->
     {

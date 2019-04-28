@@ -8,6 +8,7 @@ import com.anuragntl.pictolabellib.*;
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.io.File;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Map;
 import java.util.Iterator;
@@ -49,13 +50,17 @@ public class PicToLabelService
             outputs=outputFiles.get(id);
             for(File image : inputImages)
             {
-                BufferedImage bufferedImage=ImageIO.read(image);
+                BufferedImage bufferedImage=resize(ImageIO.read(image),properties.getInputWidth(),properties.getInputHeight());
                 Map<String,Rectangle> boxes=picToLabel.getCroppableAreas(picToLabel.getDetectedObjects(image,threshold));
                 for(Iterator<String> objectSet=boxes.keySet().iterator();objectSet.hasNext();)
                 {
                     String object=objectSet.next();
                     Rectangle rect=boxes.get(object);
-                    File outputFile=new File(outputDir+"/"+object+".jpg");
+                    File outputObjectDir=new File(outputDir+"/"+object);
+                    outputObjectDir.mkdirs();
+                    File outputFile=new File(outputObjectDir+"/"+object+".jpg");
+                    for(int i=1;outputFile.exists();i++)
+                    	outputFile=new File(outputObjectDir+"/"+object+i+".jpg");
                     ImageIO.write(ImageCropper.crop(bufferedImage
                     ,rect.x,rect.y,rect.width,rect.height),"JPG",outputFile);
                     outputs.add(outputFile);
@@ -65,7 +70,8 @@ public class PicToLabelService
         }
         catch(Exception exceptn)
         {
-            throw new RuntimeException(exceptn.toString());
+        	exceptn.printStackTrace();
+        	throw new RuntimeException(exceptn.toString());
         }
     }
 
@@ -82,5 +88,13 @@ public class PicToLabelService
     public ArrayList<File> getOutputFiles(String id)
     {
         return outputFiles.get(id);
+    }
+    public static BufferedImage resize(BufferedImage input,int width,int height)
+    {
+    	BufferedImage output=new BufferedImage(width,height,input.getType());
+    	Graphics2D graphics=output.createGraphics();
+    	graphics.drawImage(input,0,0,width,height,null);
+    	graphics.dispose();
+    	return output;
     }
 };

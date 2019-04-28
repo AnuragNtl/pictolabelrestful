@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.transform.ColorConversionTransform;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.layers.objdetect.DetectedObject;
 import org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -18,10 +19,12 @@ import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2RGB;
 
 public class PicToLabel {
 private ModelProperties modelProperties;
+private ComputationGraph model;
 private File image;
-	public PicToLabel(ModelProperties modelProperties)
+	public PicToLabel(ModelProperties modelProperties)throws IOException
 {
 	this.modelProperties=modelProperties;
+	this.model=this.modelProperties.getModel();
 }
 	private INDArray processImage()throws IOException
 	{
@@ -35,7 +38,7 @@ private File image;
 	}
 	private INDArray getOutput(INDArray input) throws IOException
 	{
-		INDArray output=modelProperties.getModel().outputSingle(input);
+		INDArray output=model.outputSingle(input);
 		return output;
 	}
 	public synchronized List<DetectedObject> getDetectedObjects(File image,double threshold)throws IOException
@@ -43,7 +46,7 @@ private File image;
 	    this.image=image;
 		INDArray input=processImage();
 		INDArray output=getOutput(input);
-		Yolo2OutputLayer outputLayer=(Yolo2OutputLayer)modelProperties.getModel().getOutputLayer(0);
+		Yolo2OutputLayer outputLayer=(Yolo2OutputLayer)model.getOutputLayer(0);
 		List<DetectedObject> detectedObjects=outputLayer.getPredictedObjects(output,threshold);
 		return detectedObjects;
 	}
@@ -68,10 +71,10 @@ private File image;
 				x1=0;
 			if(y1<0)
 				y1=0;
-			if(width>=modelProperties.getGridWidth())
-				width=modelProperties.getGridWidth()-1;
-			if(height>=modelProperties.getGridHeight())
-				height=modelProperties.getGridHeight()-1;
+			if(x1+width>=modelProperties.getInputWidth())
+				width=modelProperties.getInputWidth()-x1-1;
+			if(y1+height>=modelProperties.getInputHeight())
+				height=modelProperties.getInputHeight()-y1-1;
 			croppableAreas.put(modelClasses[detectedObject.getPredictedClass()],new Rectangle(x1,y1,width,height));
 		}
 		return croppableAreas;
